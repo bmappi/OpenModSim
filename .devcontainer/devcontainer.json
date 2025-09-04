@@ -1,0 +1,22 @@
+{
+  "name": "omodsim Development (Windows)",
+  "image": "mcr.microsoft.com/windows/servercore:ltsc2022",
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.11"
+    },
+    "ghcr.io/devcontainers/features/chocolatey:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.cmake-tools",
+        "twxs.cmake",
+        "ms-python.python"
+      ]
+    }
+  },
+  "postCreateCommand": "powershell -ExecutionPolicy Bypass -File .devcontainer/setup-qt.ps1",
+  "remoteUser": "ContainerAdministrator"
+}
