@@ -53,14 +53,23 @@ jobs:
       
       - name: Configure CMake
         run: |
-          cmake -S .\omodsim -B ./build \
-                -G "Ninja" \
-                -DCMAKE_BUILD_TYPE=Release \
-                -DCMAKE_PREFIX_PATH="C:\Qt\5.15.2\msvc2019_64"
-                
+          cmake -S .\omodsim -B ./build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="C:\Qt\5.15.2\msvc2019_64"
+      
       - name: Build Project
         run: |
           cmake --build ./build --config Release
+      
+      - name: List contents of build directory
+        run: |
+          dir .\build
+        shell: cmd
+      
+      - name: Upload Entire Build Directory
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: omodsim-build-artifacts
+          path: ./build/
 
       - name: Upload Executable
         uses: actions/upload-artifact@v4
