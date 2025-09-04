@@ -78,11 +78,11 @@ jobs:
         shell: cmd
         run: |
           cmake --build build --config %BUILD_TYPE%
-
+      
       - name: Deploy Qt dependencies using windeployqt
         shell: cmd
         run: |
-          windeployqt build\omodsim.exe --release
+          "C:\Qt\5.15.2\${{ matrix.qt_arch_install }}\bin\windeployqt.exe" build\omodsim.exe --release
 
       - name: Upload Executable
         uses: actions/upload-artifact@v4
@@ -92,5 +92,11 @@ jobs:
           path: |
             ./build/omodsim.exe
             ./build/*.dll
+            ./build/*.ini
+            ./build/*.conf
+            ./build/*.bat
             ./build/platforms/
+            ./build/docs/
+            ./build/plugins/
+            ./build/translations/
             !**/*.pdb
