@@ -54,10 +54,7 @@ jobs:
 
       - name: Configure CMake
         run: |
-          cmake -S . -B build \
-                -G "MinGW Makefiles" \
-                -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
-                -DCMAKE_PREFIX_PATH="C:\Qt\5.15.2\${{ matrix.qt_arch_install }}"
+          cmake -S . -B build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DCMAKE_PREFIX_PATH="C:\Qt\5.15.2\${{ matrix.qt_arch_install }}"
 
       - name: Build Project
         run: |
