@@ -68,10 +68,32 @@ jobs:
           "C:\Program Files (x86)\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat" ^
           && cmake --build build --config %BUILD_TYPE%
       
-      - name: List contents of build directory
+      - name: Copy required Qt DLLs to build folder
+        shell: powershell
         run: |
-          dir .\build
-        shell: cmd
+          $qtBin = "C:\Qt\5.15.2\msvc2019_64\bin"
+          $dest = "build"
+
+          $dlls = @(
+            "Qt5Core.dll",
+            "Qt5Gui.dll",
+            "Qt5Widgets.dll",
+            "Qt5Network.dll",
+            "Qt5SerialPort.dll",
+            "Qt5SerialBus.dll",
+            "Qt5Qml.dll",
+            "Qt5PrintSupport.dll",
+            "Qt5Help.dll"
+          )
+
+          foreach ($dll in $dlls) {
+            Copy-Item "$qtBin\$dll" "$dest\" -Force
+          }
+
+          # Copy Qt platform plugin (required to launch Qt GUI apps)
+          New-Item -ItemType Directory -Path "$dest\platforms" -Force
+          Copy-Item "$qtBin\..\plugins\platforms\qwindows.dll" "$dest\platforms\" -Force
+
       
       - name: Upload Entire Build Directory
         uses: actions/upload-artifact@v4
@@ -87,4 +109,7 @@ jobs:
           name: omodsim-windows-x64
           path: |
             ./build/omodsim.exe
+            ./build/*.dll
             !**/*.pdb
+            !./build/CMakeFiles
+            !./build/omodsim_autogen
