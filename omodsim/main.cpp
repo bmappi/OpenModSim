@@ -1,6 +1,9 @@
 #include <QApplication>
 #include <QFontDatabase>
 #include <QMessageBox>
+#include <iostream>
+#include <ios>
+
 #ifdef Q_OS_WIN
 #include <windows.h>
 #include <io.h>
@@ -9,7 +12,6 @@
 #endif
 #include "mainwindow.h"
 #include "cmdlineparser.h"
-
 ///
 /// \brief enableConsole
 /// Tries to attach to the parent console or allocates a new one.
