@@ -93,15 +93,7 @@ jobs:
           # Copy Qt platform plugin (required to launch Qt GUI apps)
           New-Item -ItemType Directory -Path "$dest\platforms" -Force
           Copy-Item "$qtBin\..\plugins\platforms\qwindows.dll" "$dest\platforms\" -Force
-
       
-      - name: Upload Entire Build Directory
-        uses: actions/upload-artifact@v4
-        if: success()
-        with:
-          name: omodsim-build-artifacts
-          path: ./build/
-
       - name: Upload Executable
         uses: actions/upload-artifact@v4
         if: success()
@@ -113,3 +105,16 @@ jobs:
             !**/*.pdb
             !./build/CMakeFiles
             !./build/omodsim_autogen
+      
+      - name: Deploy Qt dependencies using windeployqt
+        shell: cmd
+        run: |
+          "C:\Qt\5.15.2\msvc2019_64\bin\windeployqt.exe" build\omodsim.exe
+
+      - name: Upload Entire Build Directory
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: omodsim-build-artifacts
+          path: ./build/
+
