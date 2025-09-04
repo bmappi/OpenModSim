@@ -51,13 +51,20 @@ jobs:
           choco install -y ninja
         shell: cmd
       
-      - name: Configure CMake
+      - name: Configure CMake (MSVC)
+        shell: cmd
         run: |
-          cmake -S .\omodsim -B ./build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="C:\Qt\5.15.2\msvc2019_64"
+          "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat" ^
+          && cmake -S .\omodsim -B build ^
+             -G "Ninja" ^
+             -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ^
+             -DCMAKE_PREFIX_PATH="C:\Qt\5.15.2\msvc2019_64"
       
       - name: Build Project
+        shell: cmd
         run: |
-          cmake --build ./build --config Release
+          "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat" ^
+          && cmake --build build --config %BUILD_TYPE%
       
       - name: List contents of build directory
         run: |
