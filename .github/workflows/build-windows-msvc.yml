@@ -69,7 +69,7 @@ jobs:
       - name: Configure CMake
         shell: cmd
         run: |
-          cmake -S . -B build ^
+          cmake -S .\omodsim -B build ^
                 -G "Ninja" ^
                 -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ^
                 -DCMAKE_PREFIX_PATH="C:\Qt\5.15.2\${{ matrix.qt_arch_install }}"
