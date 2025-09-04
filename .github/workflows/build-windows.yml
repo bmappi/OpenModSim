@@ -37,7 +37,7 @@ jobs:
           host: windows
           target: desktop
           arch: win64_msvc2019_64
-          modules: qtserialport qtserialbus qtquickcontrols2 qttools
+          # modules: qtserialport qtserialbus qtquickcontrols2 qttools
           setup-python: false
           dir: "C:\\"
           
