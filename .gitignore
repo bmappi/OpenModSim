@@ -31,7 +31,6 @@ ui_*.h
 *.qch
 *.qhc
 Makefile*
-*build-*
 debug
 release
 

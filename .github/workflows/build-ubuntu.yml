@@ -1,0 +1,117 @@
+name: build-ubuntu
+on: 
+  push:
+    paths-ignore:
+      - "**.md"
+  workflow_dispatch:
+env:
+  targetName: stellariumMobile
+jobs:
+  build-ubuntu:
+    name: Build the project on ubuntu platform with Qt5
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-16.04, ubuntu-20.04]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+            
+      - name: Update System
+        run: sudo apt-get update --fix-missing -y
+        
+      - name: Install Environment
+        run: sudo apt-get install gcc g++ libgl1-mesa-dev make wget -y
+      
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v1
+        with:
+          path: ../Qt
+          key: ${{ runner.os }}-QtCache
+
+      - name: Set up Qt 5.15
+        uses: jurplel/install-qt-action@v4
+        with:
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+          version: 5.12.2
+          target: desktop
+
+      - name: Install Qt dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            qt5-default \
+            qtbase5-dev \
+            qtdeclarative5-dev \
+            libqt5serialport5-dev \
+            libqt5serialbus5-dev \
+            qttools5-dev-tools \
+            qttools5-dev \
+            cmake \
+            build-essential \
+            ninja-build
+
+      - name: Configure CMake
+        run: |
+          cmake -S . -B build \
+                -G "Ninja" \
+                -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+
+      - name: Build Project
+        run: |
+          cmake --build build --config ${{ env.BUILD_TYPE }}
+
+      - name: Create AppDir structure
+        run: |
+          mkdir -p AppDir/usr/bin
+          mkdir -p AppDir/usr/lib
+          mkdir -p AppDir/usr/share/applications
+          mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
+          
+          cp build/omodsim AppDir/usr/bin/
+          
+          # Create desktop file
+          cat > AppDir/usr/share/applications/omodsim.desktop << EOF
+          [Desktop Entry]
+          Name=Open ModSim
+          Exec=omodsim
+          Icon=omodsim
+          Type=Application
+          Categories=Development;
+          EOF
+          
+          # Copy icon if exists
+          if [ -f omodsim/res/omodsim.png ]; then
+            cp omodsim/res/omodsim.png AppDir/usr/share/icons/hicolor/256x256/apps/
+          fi
+
+      - name: Download linuxdeploy
+        run: |
+          wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          chmod +x linuxdeploy-x86_64.AppImage
+
+      - name: Create AppImage
+        run: |
+          ./linuxdeploy-x86_64.AppImage \
+            --appdir AppDir \
+            --executable AppDir/usr/bin/omodsim \
+            --desktop-file AppDir/usr/share/applications/omodsim.desktop \
+            --icon-file AppDir/usr/share/icons/hicolor/256x256/apps/omodsim.png \
+            --output appimage
+
+      - name: Upload AppImage
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: omodsim-linux-x86_64-appimage
+          path: |
+            omodsim-*.AppImage
+
+      - name: Upload Binary
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: omodsim-linux-x86_64-binary
+          path: |
+            build/omodsim
