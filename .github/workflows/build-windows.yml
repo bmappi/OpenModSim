@@ -1,0 +1,72 @@
+name: Build omodsim on Windows
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build-windows:
+    name: Build on Windows with Qt 5.15
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install aqtinstall
+        run: |
+          python -m pip install aqtinstall
+
+      - name: Set up Qt 5.15
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: 5.15.2
+          host: windows
+          target: desktop
+          arch: win64_msvc2019_64
+          modules: qtserialport qtserialbus qtquickcontrols2 qttools
+          setup-python: false
+          dir: "C:\"
+      
+      - name: Add Qt to PATH
+        run: |
+          echo "C:\Qt\5.15.2\msvc2019_64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        shell: powershell
+
+      - name: Install Build Tools
+        run: |
+          choco install -y ninja
+        shell: cmd
+
+       - name: Configure CMake
+        run: |
+          cmake -S .\omodsim -B ./build \
+                -G "Ninja" \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_PREFIX_PATH="C:\Qt\5.15.2\msvc2019_64"
+                
+      - name: Build Project
+        run: |
+          cmake --build ./build --config Release
+
+      - name: Upload Executable
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: omodsim-windows-x64
+          path: |
+            ./build/omodsim.exe
+            !**/*.pdb
