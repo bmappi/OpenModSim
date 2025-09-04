@@ -1,4 +1,4 @@
-name: Build omodsim on Windows and Linux
+name: Build omodsim on Windows MSVC
 
 on:
   push:
@@ -52,7 +52,7 @@ jobs:
           host: windows
           target: desktop
           arch: ${{ matrix.arch }}
-          modules: qtserialport qtserialbus qttools
+          # modules: qtserialport qtserialbus qttools
           setup-python: false
           dir: "C:\\"
 

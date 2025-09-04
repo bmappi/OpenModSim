@@ -1,4 +1,4 @@
-name: Build omodsim on Windows and Linux
+name: Build omodsim on Windows MinGW
 
 on:
   push:
@@ -13,7 +13,7 @@ env:
 jobs:
   build-windows-mingw:
     name: Build on Windows MinGW
-    runs-on: windows-2019
+    runs-on: windows-latest
     strategy:
       matrix:
         arch: [win64_mingw81]
@@ -42,7 +42,7 @@ jobs:
           host: windows
           target: desktop
           arch: ${{ matrix.arch }}
-          modules: qtserialport qtserialbus qttools
+          # modules: qtserialport qtserialbus qttools
           setup-python: false
           dir: "C:\\"
 
