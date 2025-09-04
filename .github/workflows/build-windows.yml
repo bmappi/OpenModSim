@@ -111,10 +111,16 @@ jobs:
         run: |
           "C:\Qt\5.15.2\msvc2019_64\bin\windeployqt.exe" build\omodsim.exe
 
-      - name: Upload Entire Build Directory
+      - name: Upload Filtered Build Directory
         uses: actions/upload-artifact@v4
         if: success()
         with:
           name: omodsim-build-artifacts
-          path: ./build/
+          path: |
+            ./build/**
+            !./build/CMakeFiles/**
+            !./build/omodsim_autogen/**
+            !./build/build.ninja
+            !./build/CMakeCache.txt
+            !./build/cmake_install.cmake
 
