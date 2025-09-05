@@ -55,3 +55,6 @@ CMakeLists.txt.user*
 *.rc
 *.qtds
 *.ts text eol=lf
+
+build
+.vscode

@@ -2000,6 +2000,16 @@ MODBUS Point Type:
         <source>Setup test config file.</source>
         <translation type="obsolete">Задать файл конфига.</translation>
     </message>
+    <message>
+        <location filename="../main.cpp" line="107"/>
+        <source>Help</source>
+        <translation type="unfinished">帮助</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="134"/>
+        <source>Error</source>
+        <translation type="unfinished">错误</translation>
+    </message>
 </context>
 <context>
     <name>RunModeComboBox</name>

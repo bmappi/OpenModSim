@@ -1,10 +1,11 @@
 {
   "name": "omodsim Development (Linux)",
-  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  // "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "build": {
+      // Path is relative to the devcontainer.json file.
+      "dockerfile": "Dockerfile"
+  },
   "features": {
-    "ghcr.io/devcontainers/features/python:1": {
-      "version": "3.11"
-    },
 		"ghcr.io/devcontainers/features/desktop-lite:1": {}
   },
 	"forwardPorts": [6080],
@@ -15,7 +16,7 @@
 		}
 	},
 	"containerEnv": {
-	  "VNC_RESOLUTION": "600x800x16"
+	  "VNC_RESOLUTION": "800x600x16"
 	},
 	"postCreateCommand": "bash .devcontainer/generate-tasks.sh",
   "customizations": {
@@ -23,7 +24,6 @@
       "extensions": [
         "ms-vscode.cpptools",
         "ms-vscode.cmake-tools",
-        "twxs.cmake",
         "ms-python.python"
       ]
     }
