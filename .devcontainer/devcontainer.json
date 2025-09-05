@@ -1,6 +1,6 @@
 {
   "name": "omodsim Development (Linux)",
-  "image": "ghcr.io/kde/qt5-dev:latest",
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
   "features": {
     "ghcr.io/devcontainers/features/python:1": {
       "version": "3.11"
