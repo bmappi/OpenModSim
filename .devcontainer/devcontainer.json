@@ -4,8 +4,20 @@
   "features": {
     "ghcr.io/devcontainers/features/python:1": {
       "version": "3.11"
-    }
+    },
+		"ghcr.io/devcontainers/features/desktop-lite:1": {}
   },
+	"forwardPorts": [6080],
+	"portsAttributes": {
+		"6080": {
+		"label": "desktop",
+		"onAutoForward": "openBrowser"
+		}
+	},
+	"containerEnv": {
+	  "VNC_RESOLUTION": "600x800x16"
+	},
+	"postCreateCommand": "bash .devcontainer/generate-tasks.sh",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -15,6 +27,5 @@
         "ms-python.python"
       ]
     }
-  },
-  "remoteUser": "vscode"
+  }
 }
