@@ -22,20 +22,6 @@ jobs:
         
       - name: Install Environment
         run: sudo apt-get install gcc g++ libgl1-mesa-dev make wget -y
-      
-      - name: Cache Qt
-        id: cache-qt
-        uses: actions/cache@v4
-        with:
-          path: ../Qt
-          key: ${{ runner.os }}-QtCache
-
-      - name: Set up Qt 5.15
-        uses: jurplel/install-qt-action@v4
-        with:
-          cached: ${{ steps.cache-qt.outputs.cache-hit }}
-          version: 5.12.2
-          target: desktop
 
       - name: Install Qt dependencies
         run: |
@@ -49,7 +35,8 @@ jobs:
             qttools5-dev \
             cmake \
             build-essential \
-            ninja-build
+            ninja-build \
+            libqt5serialbus5
 
       - name: Configure CMake
         run: |

@@ -16,7 +16,7 @@
 		}
 	},
 	"containerEnv": {
-	  "VNC_RESOLUTION": "800x600x16"
+	  "VNC_RESOLUTION": "1600x1024x16"
 	},
 	"postCreateCommand": "bash .devcontainer/generate-tasks.sh",
   "customizations": {
