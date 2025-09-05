@@ -9,6 +9,7 @@
 #include <io.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <cstdint>
 #endif
 #include "mainwindow.h"
 #include "cmdlineparser.h"
@@ -23,12 +24,12 @@ static void enableConsole() {
         // Successfully attached. Redirect stdout/stderr.
         // Get the standard output handle.
         HANDLE handle_out = GetStdHandle(STD_OUTPUT_HANDLE);
-        int hCrt_out = _open_osfhandle((long) handle_out, _O_TEXT);
+        int hCrt_out = _open_osfhandle(reinterpret_cast<intptr_t>(handle_out), _O_TEXT);
         FILE* hf_out = _fdopen(hCrt_out, "w");
         *stdout = *hf_out;
         // Get the standard error handle.
         HANDLE handle_err = GetStdHandle(STD_ERROR_HANDLE);
-        int hCrt_err = _open_osfhandle((long) handle_err, _O_TEXT);
+        int hCrt_err = _open_osfhandle(reinterpret_cast<intptr_t>(handle_err), _O_TEXT);
         FILE* hf_err = _fdopen(hCrt_err, "w");
         *stderr = *hf_err;
 
