@@ -1,52 +1,95 @@
 function Controller() {
     installer.autoRejectMessageBoxes();
     installer.setMessageBoxAutomaticAnswer("Overwrite Target Directory?", QMessageBox.Yes);
-    installer.installationFinished.connect(function() {
-        gui.clickButton(buttons.FinishButton);
-    });
+    installer.installationFinished.connect(proceed);
+}
+
+
+function page() {
+    return gui.currentPageWidget()
+}
+
+
+function proceed(button, delay) {
+    gui.clickButton(button || buttons.NextButton, delay)
+}
+
+function logCurrentPage() {
+    var pageName = page().objectName
+    var pagePrettyTitle = page().title
+    console.log("At page: " + pageName + " ('" + pagePrettyTitle + "')")
 }
 
 Controller.prototype.WelcomePageCallback = function() {
-    gui.clickButton(buttons.NextButton);
+    logCurrentPage()
+    // For some reason, delay is needed.  Two seconds seems to be enough.
+    proceed(buttons.NextButton, 2000)
 }
 
+/// Just click next -- that is sign in to Qt account if credentials are
+/// remembered from previous installs, or skip sign in otherwise.
 Controller.prototype.CredentialsPageCallback = function() {
-    gui.clickButton(buttons.NextButton);
+    logCurrentPage()
+    proceed()
 }
 
+/// Skip introduction page
 Controller.prototype.IntroductionPageCallback = function() {
-    gui.clickButton(buttons.NextButton);
+    logCurrentPage()
+    proceed()
 }
 
 Controller.prototype.TargetDirectoryPageCallback = function() {
+    logCurrentPage();
     gui.currentPageWidget().TargetDirectoryLineEdit.setText("C:\\Qt\\5.6.3\\msvc2013_64");
-    gui.clickButton(buttons.NextButton);
+    proceed()
 }
 
 Controller.prototype.ComponentSelectionPageCallback = function() {
-    var page = gui.currentPageWidget();
-    page.selectAll();
+    logCurrentPage()
+    // Deselect whatever was default, and can be deselected.
+    page().selectAll()
 
-    gui.clickButton(buttons.NextButton);
+    proceed()
 }
 
+/// Agree license
 Controller.prototype.LicenseAgreementPageCallback = function() {
-    gui.currentPageWidget().AcceptLicenseRadioButton.setChecked(true);
-    gui.clickButton(buttons.NextButton);
+    logCurrentPage()
+    page().AcceptLicenseRadioButton.checked = true
+    gui.clickButton(buttons.NextButton)
 }
 
+/// Windows-specific, skip it
 Controller.prototype.StartMenuDirectoryPageCallback = function() {
-    gui.clickButton(buttons.NextButton);
+    logCurrentPage()
+    gui.clickButton(buttons.NextButton)
 }
 
+/// Skip confirmation page
 Controller.prototype.ReadyForInstallationPageCallback = function() {
-    gui.clickButton(buttons.NextButton);
+    logCurrentPage()
+    proceed()
 }
+
+/// Installation in progress, do nothing
+Controller.prototype.PerformInstallationPageCallback = function() {
+    logCurrentPage()
+}
+
 
 Controller.prototype.FinishedPageCallback = function() {
-    var widget = gui.currentPageWidget();
-    if (widget.RunItCheckBox) {
-        widget.RunItCheckBox.checked = false;  // Prevent launching Qt Creator
-    }
-    gui.clickButton(buttons.FinishButton);
+    logCurrentPage()
+    // Deselect "launch QtCreator"
+    page().RunItCheckBox.checked = false
+    proceed(buttons.FinishButton)
+}
+
+/// Question for tracking usage data, refuse it
+Controller.prototype.DynamicTelemetryPluginFormCallback = function() {
+    logCurrentPage()
+    console.log(Object.keys(page().TelemetryPluginForm.statisticGroupBox))
+    var radioButtons = page().TelemetryPluginForm.statisticGroupBox
+    radioButtons.disableStatisticRadioButton.checked = true
+    proceed()
 }
