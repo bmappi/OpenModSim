@@ -1,0 +1,84 @@
+name: Build omodsim for Windows XP (Qt5.6.3 / VS2013 or v141_xp)
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - "**.md"
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - "**.md"
+  workflow_dispatch:
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build-windows-xp:
+    name: Build on Windows with Qt 5.15.2
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Cache Qt installation
+        id: qt-cache
+        uses: actions/cache@v4
+        with:
+          path: C:\Qt
+          key: qt-5.6.3-win32-XP
+      
+      - name: Install Qt 5.6.3 for VS2013
+        run: |
+          powershell -Command "
+            Invoke-WebRequest 'https://download.qt.io/new_archive/qt/5.6/5.6.3/qt-opensource-windows-x86-msvc2013_64-5.6.3.exe' -OutFile qt56_vs2013_64.exe
+            Start-Process qt56_vs2013_64.exe -ArgumentList '/silent','/installpath','C:\Qt\5.6.3\msvc2013_64' -Wait
+          "
+      - name: Setup MSVC / XP toolset
+        run: |
+          # If using VS2022 modify, otherwise use VS2013 directly
+          # For VS2022 + v141_xp:
+          powershell -Command "
+            & 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\Setup.exe' modify --installPath 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise' --add Microsoft.VisualStudio.Component.WinXP --add Microsoft.VisualStudio.Component.VC.v141.x86.x64 --quiet --norestart
+          "
+          call "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" x86 # or amd64
+
+      - name: Add Qt bin to PATH
+        shell: powershell
+        run: |
+          echo "C:\Qt\5.6.3\msvc2013_64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        shell: powershell
+
+      - name: Configure CMake
+        shell: cmd
+        run: |
+          cmake -S .\omodsim -B build_xp ^
+                -G "NMake Makefiles" ^
+                -DCMAKE_BUILD_TYPE=Release ^
+                -DCMAKE_PREFIX_PATH="C:\Qt\5.6.3\msvc2013_64" ^
+                -D_WIN32_WINNT=0x0501
+
+      - name: Build Project
+        shell: cmd
+        run: |
+          cmake --build build --config %BUILD_TYPE%
+
+      - name: Deploy Qt dependencies using windeployqt
+        shell: cmd
+        run: |
+          "C:\Qt\5.6.3\msvc2013_64\bin\windeployqt.exe" build\omodsim.exe --release
+
+      - name: Upload Executable
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: omodsim-win-xp-qt5_6_3
+          path: |
+            ./build/**
+            !./build/CMakeFiles/**
+            !./build/omodsim_autogen/**
+            !./build/build.ninja
+            !./build/CMakeCache.txt
+            !./build/cmake_install.cmake
