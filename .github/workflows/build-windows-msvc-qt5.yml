@@ -1,4 +1,4 @@
-name: Build omodsim on Windows MSVC
+name: Build omodsim (Qt5 - MSVC 2019)
 
 on:
   push:
@@ -15,8 +15,8 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-  build-windows-msvc:
-    name: Build on Windows MSVC
+  build-windows-qt5:
+    name: Build on Windows with Qt 5.15.2
     runs-on: windows-latest
     strategy:
       matrix:
@@ -38,15 +38,6 @@ jobs:
             qt_arch_install: msvc2019
             qt_toolchain: msvc2019
 
-          # Qt 6.8.3 with MSVC 2022 (only supported option)
-          - qt_version: 6.8.3
-            qt_version_safe: 6_8_3
-            arch: win64_msvc2022_64
-            msvc_arch: x64
-            output_arch: x86_64
-            qt_arch_install: msvc2022_64
-            qt_toolchain: msvc2022
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -65,9 +56,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          key: ${{ runner.os }}-pip
           restore-keys: |
-            ${{ runner.os }}-pip-
+            ${{ runner.os }}-pip
 
       - name: Install aqtinstall
         run: |
@@ -90,8 +81,6 @@ jobs:
           arch: ${{ matrix.arch }}
           setup-python: false
           dir: "C:\\"
-          # Only for Qt6, include modules
-          modules: ${{ matrix.qt_version == '6.8.3' && 'qtserialbus qtserialport qt5compat' || '' }}
 
       - name: Add Qt to PATH
         run: |
@@ -110,8 +99,6 @@ jobs:
             build/CMakeFiles
             build/CMakeCache.txt
           key: cmake-${{ runner.os }}-${{ matrix.arch }}-${{ matrix.qt_version_safe }}-${{ hashFiles('**/CMakeLists.txt') }}
-          restore-keys: |
-            cmake-${{ runner.os }}-${{ matrix.arch }}-${{ matrix.qt_version_safe }}-
 
       - name: Configure CMake
         shell: cmd
@@ -119,8 +106,7 @@ jobs:
           cmake -S .\omodsim -B build ^
                 -G "Ninja" ^
                 -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ^
-                -DCMAKE_PREFIX_PATH="C:\Qt\${{ matrix.qt_version }}\${{ matrix.qt_arch_install }}" ^
-                ${{ matrix.qt_version == '6.8.3' && format('-DQt6_DIR=\"C:\\Qt\\{0}\\{1}\\lib\\cmake\\Qt6\"', matrix.qt_version, matrix.qt_arch_install) || '' }}
+                -DCMAKE_PREFIX_PATH="C:\Qt\${{ matrix.qt_version }}\${{ matrix.qt_arch_install }}" 
 
       - name: Build Project
         shell: cmd

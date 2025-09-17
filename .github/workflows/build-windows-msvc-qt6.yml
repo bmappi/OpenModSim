@@ -1,0 +1,125 @@
+name: Build omodsim (Qt6 - MSVC 2022)
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - "**.md"
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - "**.md"
+  workflow_dispatch:
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build-windows-qt6:
+    name: Build on Windows with Qt 6.8.3
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          # Qt 6.8.3 with MSVC 2022 (only supported option)
+          - qt_version: 6.8.3
+            qt_version_safe: 6_8_3
+            arch: win64_msvc2022_64
+            msvc_arch: x64
+            output_arch: x86_64
+            qt_arch_install: msvc2022_64
+            qt_toolchain: msvc2022
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.msvc_arch }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip
+
+      - name: Install aqtinstall
+        run: |
+          python -m pip install aqtinstall
+
+      - name: Cache Qt installation
+        id: qt-cache
+        uses: actions/cache@v4
+        with:
+          path: C:\Qt
+          key: qt-${{ runner.os }}-${{ matrix.arch }}-${{ matrix.qt_version_safe }}
+
+      - name: Set up Qt
+        if: steps.qt-cache.outputs.cache-hit != 'true'
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ matrix.qt_version }}
+          host: windows
+          target: desktop
+          arch: ${{ matrix.arch }}
+          setup-python: false
+          dir: "C:\\"
+          # Only for Qt6, include modules
+          modules: qtserialbus qtserialport qt5compat
+
+      - name: Add Qt to PATH
+        run: |
+          echo "C:\Qt\${{ matrix.qt_version }}\${{ matrix.qt_arch_install }}\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        shell: powershell
+
+      - name: Install Build Tools
+        run: |
+          choco install -y ninja
+        shell: cmd
+
+      - name: Cache CMake build
+        uses: actions/cache@v4
+        with:
+          path: |
+            build/CMakeFiles
+            build/CMakeCache.txt
+          key: cmake-${{ runner.os }}-${{ matrix.arch }}-${{ matrix.qt_version_safe }}-${{ hashFiles('**/CMakeLists.txt') }}
+
+      - name: Configure CMake
+        shell: cmd
+        run: |
+          cmake -S .\omodsim -B build ^
+                -G "Ninja" ^
+                -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ^
+                -DCMAKE_PREFIX_PATH="C:\Qt\${{ matrix.qt_version }}\${{ matrix.qt_arch_install }}" ^
+                -DQt6_DIR="C:\Qt\${{ matrix.qt_version }}\${{ matrix.qt_arch_install }}\lib\cmake\Qt6"
+
+      - name: Build Project
+        shell: cmd
+        run: |
+          cmake --build build --config %BUILD_TYPE%
+
+      - name: Deploy Qt dependencies using windeployqt
+        shell: cmd
+        run: |
+          "C:\Qt\${{ matrix.qt_version }}\${{ matrix.qt_arch_install }}\bin\windeployqt.exe" build\omodsim.exe --release
+
+      - name: Upload Executable
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: omodsim-${{ matrix.output_arch }}-qt${{ matrix.qt_version_safe }}
+          path: |
+            ./build/**
+            !./build/CMakeFiles/**
+            !./build/omodsim_autogen/**
+            !./build/build.ninja
+            !./build/CMakeCache.txt
+            !./build/cmake_install.cmake
