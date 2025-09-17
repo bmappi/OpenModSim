@@ -1,57 +1,60 @@
 # Open ModSim
 Open ModSim is a free implimentation of modbus slave (server) utility for modbus-tcp and modbus-rtu protocols.
 
-![image](https://github.com/user-attachments/assets/cfa669f5-4018-4db4-bc43-ca060d469182)
+<img width="1292" height="759" alt="image" src="https://github.com/user-attachments/assets/993501d6-bb1e-4dee-91c4-6d9b7a53df8b" />
 
-![image](https://github.com/user-attachments/assets/16653017-d479-466a-8302-5960a2e47fc4)
+<img width="1292" height="760" alt="image" src="https://github.com/user-attachments/assets/1383d93f-03f2-42f5-abb5-0ee1b5dbd10b" />
 
 
-
-## Features
+# Features
 
 The following Modbus functions are available:
 
-Discrete Coils/Flags
-
+- Discrete Coils/Flags
+```
     0x01 - Read Coils
     0x02 - Read Discrete Inputs
     0x05 - Write Single Coil
     0x0F - Write Multiple Coils
+```
 
-Registers
-
+- Registers
+```
     0x03 - Read Holding Registers
     0x04 - Read Input Registers
     0x06 - Write Single Register
     0x10 - Write Multiple Registers
     0x16 - Mask Write Register
+```
     
 The following simulations are available:
 
-Discrete Coils/Flags
-
+- Discrete Coils/Flags
+```
     Random - simulate flag randomly
     Toggle - simulate flag on/off periodicaly
-    
-Registers
+```
 
+- Registers
+```
     Random - simulate register randomly
     Increment - simulate register from Low Limit to High Limit with a given Step
     Decrement - simulate register from High Limit to Low Limit with a given Step
+```
 
-## Modbus Logging
+# Modbus Logging
 
-![image](https://github.com/user-attachments/assets/f62d721f-dd0b-4db7-a239-2a22045e99cd)
+<img width="1292" height="759" alt="image" src="https://github.com/user-attachments/assets/b097a1b7-ee3f-4cd8-b0f2-c087cea25c00" />
 
 
-## Extended Featues
+# Extended Featues
 
 - Modbus Message Parser
 
-![image](https://github.com/sanny32/OpenModSim/assets/13627951/7e9744b8-f4b3-439a-a312-79cbdc426dc2)
+<img width="674" height="463" alt="image" src="https://github.com/user-attachments/assets/774e3ff1-1bf2-46a6-a685-e6702e2e7fe5" />
 
   
-## Scripting
+# Scripting
   From version 1.2.0 Open ModSim supports scripting. Qt runtime implements the [ECMAScript Language Specification](http://www.ecma-international.org/publications/standards/Ecma-262.htm) standard, so Javascript is used to write code.
   
 ![image](https://github.com/user-attachments/assets/5b448fcd-1ca7-4cfc-af0f-175fbb660f80)
@@ -104,8 +107,95 @@ function init()
 Script.onInit(init);
 ```
 
-## Building
+# Building
   Now building is available via cmake (with installed Qt version 5.15 and above) or Qt Creator. Supports both OS Microsoft Windows and Linux.
+
+# About supported operating systems
+
+The following minimum operating system versions are supported for OpenModSim:
+- Microsoft Windows 7
+- Debian Linux 11
+- Ubuntu Linux 22.04
+- Mint Linux 22
+- Fedora Linux 41
+- OpenSuse Linux 15.6
+- Alt Linux 11
+- Astra Linux 1.7
+- RedOS 8
+
+# Install from binary distributions
+
+Below are the methods for installing the OpenModSim for different OS
+
+## Microsoft Windows
+Run the installer:
+
+- For 32-bit Windows: `qt5-omodsim_1.9.0-1_x86.exe`
+- For 64-bit Windows: `qt5-omodsim_1.9.0-1_amd64.exe` or `qt6-omodsim_1.9.0-1_amd64.exe`
+
+## Debian/Ubintu/Mint/Astra Linux
+### Install
+Install the DEB package from the command line:
+```bash
+sudo apt install -f ./qt6-omodsim_1.9.0-1_amd64.deb
+```
+or if you want to use Qt5 libraries:
+```bash
+sudo apt install -f ./qt5-omodsim_1.9.0-1_amd64.deb
+```
+
+### Remove
+To remove the DEB package run:
+```bash
+sudo apt remove qt6-omodsim
+```
+or for Qt5 package:
+```bash
+sudo apt remove qt5-omodsim
+```
+
+## RedHat/Fedora/RedOS Linux
+### Install
+Install the RPM package from the command line:
+```bash
+sudo dnf install ./qt6-omodsim_1.9.0-1.x86_64.rpm
+```
+
+### Remove
+To remove the RPM package run:
+```bash
+sudo dnf remove qt6-omodsim
+```
+
+## Alt Linux
+### Install
+Install the RPM package from the command line as root user:
+```bash
+apt-get install ./qt6-omodsim_1.9.0-1.x86_64.rpm
+```
+
+### Remove
+To remove the RPM package run as root user:
+```bash
+apt-get remove qt6-omodsim
+```
+
+## SUSE/OpenSUSE Linux
+### Install
+Import qt6-omodsim.rpm.pubkey to rpm repository:
+```bash
+sudo rpm --import qt6-omodsim.rpm.pubkey
+```
+Install the RPM package using Zypper:
+```bash
+sudo zypper install ./qt6-omodsim_1.9.0-1.x86_64.rpm
+```
+
+### Remove
+To remove the RPM package run:
+```bash
+sudo zypper remove qt6-omodsim
+```
   
 ## MIT License
 Copyright 2025 Alexandr Ananev [mail@ananev.org]
