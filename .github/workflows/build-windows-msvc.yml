@@ -55,7 +55,6 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: ${{ matrix.msvc_arch }}
-          toolset: ${{ matrix.qt_toolchain }}
 
       - name: Setup Python
         uses: actions/setup-python@v5
