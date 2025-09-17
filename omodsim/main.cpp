@@ -159,7 +159,7 @@ void serviceWorker()
     QString configPath = "C:\\ModbusGateway\\conf\\TestConfig";
     QString exePath = "C:\\ModbusGateway\\omodsim.exe";
 
-    QProcess::startDetached(exePath, QStringList() << "--config" << configPath });
+    QProcess::startDetached(exePath, QStringList() << "--config" << configPath );
 
     // Keep thread alive while service is running
     while (g_Running) {
