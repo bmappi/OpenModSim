@@ -16,13 +16,13 @@ env:
 
 jobs:
   build-windows-qt6:
-    name: Build on Windows with Qt 6.8.3
+    name: Build on Windows with Qt 6.9.2
     runs-on: windows-latest
     strategy:
       matrix:
         include:
-          # Qt 6.8.3 with MSVC 2022 (only supported option)
-          - qt_version: 6.8.3
+          # Qt 6.9.2 with MSVC 2022 (only supported option)
+          - qt_version: 6.9.2
             qt_version_safe: 6_8_3
             arch: win64_msvc2022_64
             msvc_arch: x64
