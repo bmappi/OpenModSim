@@ -20,36 +20,32 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        arch: [win64_msvc2019_64, win32_msvc2019]
-        qt_version: [5.15.2, 6.8.3] # LTS
         include:
-          # Qt 5.15.2 mappings
-          - arch: win64_msvc2019_64
+          # Qt 5.15.2 with MSVC 2019
+          - qt_version: 5.15.2
+            qt_version_safe: 5_15_2
+            arch: win64_msvc2019_64
             msvc_arch: x64
             output_arch: x86_64
             qt_arch_install: msvc2019_64
-            qt_version: 5.15.2
-            qt_version_safe: 5_15_2
-          - arch: win32_msvc2019
-            msvc_arch: x86
-            output_arch: x86
-            qt_arch_install: msvc2019
-            qt_version: 5.15.2
-            qt_version_safe: 5_15_2
+            qt_toolchain: msvc2019
 
-          # Qt 6.8.3 mappings
-          - arch: win64_msvc2019_64
-            msvc_arch: x64
-            output_arch: x86_64
-            qt_arch_install: msvc2019_64
-            qt_version: 6.8.3
-            qt_version_safe: 6_8_3
-          - arch: win32_msvc2019
+          - qt_version: 5.15.2
+            qt_version_safe: 5_15_2
+            arch: win32_msvc2019
             msvc_arch: x86
             output_arch: x86
             qt_arch_install: msvc2019
-            qt_version: 6.8.3
+            qt_toolchain: msvc2019
+
+          # Qt 6.8.3 with MSVC 2022 (only supported option)
+          - qt_version: 6.8.3
             qt_version_safe: 6_8_3
+            arch: win64_msvc2022_64
+            msvc_arch: x64
+            output_arch: x86_64
+            qt_arch_install: msvc2022_64
+            qt_toolchain: msvc2022
 
     steps:
       - name: Checkout repository
@@ -59,6 +55,7 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: ${{ matrix.msvc_arch }}
+          toolset: ${{ matrix.qt_toolchain }}
 
       - name: Setup Python
         uses: actions/setup-python@v5
