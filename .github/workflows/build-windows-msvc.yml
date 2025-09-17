@@ -45,18 +45,33 @@ jobs:
         with:
           python-version: '3.x'
 
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
       - name: Install aqtinstall
         run: |
           python -m pip install aqtinstall
 
+      - name: Cache Qt installation
+        id: qt-cache
+        uses: actions/cache@v4
+        with:
+          path: C:\Qt
+          key: qt-${{ runner.os }}-${{ matrix.arch }}
+
       - name: Set up Qt 5.15
+        if: steps.qt-cache.outputs.cache-hit != 'true'
         uses: jurplel/install-qt-action@v4
         with:
           version: 5.15.2
           host: windows
           target: desktop
           arch: ${{ matrix.arch }}
-          # modules: qtserialport qtserialbus qttools
           setup-python: false
           dir: "C:\\"
 
@@ -70,6 +85,16 @@ jobs:
           choco install -y ninja
         shell: cmd
 
+      - name: Cache CMake build
+        uses: actions/cache@v4
+        with:
+          path: |
+            build/CMakeFiles
+            build/CMakeCache.txt
+          key: cmake-${{ runner.os }}-${{ matrix.arch }}-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            cmake-${{ runner.os }}-${{ matrix.arch }}-
+
       - name: Configure CMake
         shell: cmd
         run: |
@@ -82,7 +107,7 @@ jobs:
         shell: cmd
         run: |
           cmake --build build --config %BUILD_TYPE%
-      
+
       - name: Deploy Qt dependencies using windeployqt
         shell: cmd
         run: |
@@ -92,7 +117,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: omodsim-windows-x64
+          name: omodsim-${{ matrix.output_arch }}
           path: |
             ./build/**
             !./build/CMakeFiles/**
