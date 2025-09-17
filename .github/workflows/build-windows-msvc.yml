@@ -119,8 +119,8 @@ jobs:
           cmake -S .\omodsim -B build ^
                 -G "Ninja" ^
                 -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ^
-                -DCMAKE_PREFIX_PATH="C:\Qt\${{ matrix.qt_version }}\${{ matrix.qt_arch_install }}"^
-                ${{ matrix.qt_version == '6.8.3' && '-DQt6_DIR=\"C:\\Qt\\' + matrix.qt_version + '\\' + matrix.qt_arch_install + '\\lib\\cmake\\Qt6\"' || '' }}
+                -DCMAKE_PREFIX_PATH="C:\Qt\${{ matrix.qt_version }}\${{ matrix.qt_arch_install }}" ^
+                ${{ matrix.qt_version == '6.8.3' && format('-DQt6_DIR=\"C:\\Qt\\{0}\\{1}\\lib\\cmake\\Qt6\"', matrix.qt_version, matrix.qt_arch_install) || '' }}
 
       - name: Build Project
         shell: cmd
