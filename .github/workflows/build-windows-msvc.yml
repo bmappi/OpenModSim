@@ -90,6 +90,8 @@ jobs:
           arch: ${{ matrix.arch }}
           setup-python: false
           dir: "C:\\"
+          # Only for Qt6, include modules
+          modules: ${{ matrix.qt_version == '6.8.3' && 'qtserialbus qtserialport qt5compat' || '' }}
 
       - name: Add Qt to PATH
         run: |
@@ -117,7 +119,8 @@ jobs:
           cmake -S .\omodsim -B build ^
                 -G "Ninja" ^
                 -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ^
-                -DCMAKE_PREFIX_PATH="C:\Qt\${{ matrix.qt_version }}\${{ matrix.qt_arch_install }}"
+                -DCMAKE_PREFIX_PATH="C:\Qt\${{ matrix.qt_version }}\${{ matrix.qt_arch_install }}"^
+                ${{ matrix.qt_version == '6.8.3' && '-DQt6_DIR=\"C:\\Qt\\' + matrix.qt_version + '\\' + matrix.qt_arch_install + '\\lib\\cmake\\Qt6\"' || '' }}
 
       - name: Build Project
         shell: cmd
