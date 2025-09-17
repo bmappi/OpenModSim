@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <atomic>
 #include <thread>
+#include <QProcess>
 #endif
 #include "mainwindow.h"
 #include "cmdlineparser.h"
@@ -158,7 +159,7 @@ void serviceWorker()
     QString configPath = "C:\\ModbusGateway\\conf\\TestConfig";
     QString exePath = "C:\\ModbusGateway\\omodsim.exe";
 
-    QProcess::startDetached(exePath, { "--config", configPath });
+    QProcess::startDetached(exePath, QStringList() << "--config" << configPath });
 
     // Keep thread alive while service is running
     while (g_Running) {
@@ -166,7 +167,7 @@ void serviceWorker()
     }
 }
 
-DWORD WINAPI serviceControlHandler(DWORD control, DWORD, DWORD, LPVOID)
+DWORD WINAPI serviceControlHandler(DWORD control, DWORD eventType, LPVOID eventData, LPVOID context)
 {
     switch (control) {
     case SERVICE_CONTROL_STOP:
@@ -182,7 +183,7 @@ DWORD WINAPI serviceControlHandler(DWORD control, DWORD, DWORD, LPVOID)
 
 void WINAPI serviceMain(DWORD, LPTSTR*)
 {
-    g_StatusHandle = RegisterServiceCtrlHandlerEx(TEXT("ModbusGateway"), serviceControlHandler, nullptr);
+    g_StatusHandle = RegisterServiceCtrlHandlerExA("ModbusGateway", serviceControlHandler, nullptr);
     if (!g_StatusHandle)
         return;
 
