@@ -1,8 +1,6 @@
 {
   "name": "omodsim Development (Linux)",
-  // "image": "mcr.microsoft.com/devcontainers/universal:2",
   "build": {
-      // Path is relative to the devcontainer.json file.
       "dockerfile": "Dockerfile"
   },
   "features": {

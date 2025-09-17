@@ -1,10 +1,14 @@
-name: Build omodsim on Windows
+name: Build omodsim on Windows MSVC x64
 
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - "**.md"
   pull_request:
     branches: [ main ]
+    paths-ignore:
+      - "**.md"
   workflow_dispatch:
 
 
@@ -93,29 +97,17 @@ jobs:
           # Copy Qt platform plugin (required to launch Qt GUI apps)
           New-Item -ItemType Directory -Path "$dest\platforms" -Force
           Copy-Item "$qtBin\..\plugins\platforms\qwindows.dll" "$dest\platforms\" -Force
-      
-      - name: Upload Executable
-        uses: actions/upload-artifact@v4
-        if: success()
-        with:
-          name: omodsim-windows-x64
-          path: |
-            ./build/omodsim.exe
-            ./build/*.dll
-            !**/*.pdb
-            !./build/CMakeFiles
-            !./build/omodsim_autogen
-      
+
       - name: Deploy Qt dependencies using windeployqt
         shell: cmd
         run: |
           "C:\Qt\5.15.2\msvc2019_64\bin\windeployqt.exe" build\omodsim.exe
 
-      - name: Upload Filtered Build Directory
+      - name: Upload Executable
         uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: omodsim-build-artifacts
+          name: omodsim-windows-x64
           path: |
             ./build/**
             !./build/CMakeFiles/**
