@@ -30,7 +30,7 @@ jobs:
           path: C:\Qt
           key: qt-5.6.3-win32-XP
       
-      - name: name: Install Qt 5.6.3 for VS2013
+      - name: Install Qt 5.6.3 for VS2013
         run: |
           $ErrorActionPreference = "Stop"
           Invoke-WebRequest `
