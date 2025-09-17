@@ -10,6 +10,8 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <cstdint>
+#include <atomic>
+#include <thread>
 #endif
 #include "mainwindow.h"
 #include "cmdlineparser.h"
@@ -145,6 +147,63 @@ static void showErrorMessage(const QString &message, bool useGui = false)
     }
 }
 
+#ifdef Q_OS_WIN
+std::atomic<bool> g_Running = true;
+SERVICE_STATUS g_ServiceStatus = {};
+SERVICE_STATUS_HANDLE g_StatusHandle = nullptr;
+
+void serviceWorker()
+{
+    // Example: launch your internal logic (or subprocess, etc.)
+    QString configPath = "C:\\ModbusGateway\\conf\\TestConfig";
+    QString exePath = "C:\\ModbusGateway\\omodsim.exe";
+
+    QProcess::startDetached(exePath, { "--config", configPath });
+
+    // Keep thread alive while service is running
+    while (g_Running) {
+        Sleep(1000);
+    }
+}
+
+DWORD WINAPI serviceControlHandler(DWORD control, DWORD, DWORD, LPVOID)
+{
+    switch (control) {
+    case SERVICE_CONTROL_STOP:
+        g_ServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
+        SetServiceStatus(g_StatusHandle, &g_ServiceStatus);
+        g_Running = false;
+        g_ServiceStatus.dwCurrentState = SERVICE_STOPPED;
+        SetServiceStatus(g_StatusHandle, &g_ServiceStatus);
+        break;
+    }
+    return NO_ERROR;
+}
+
+void WINAPI serviceMain(DWORD, LPTSTR*)
+{
+    g_StatusHandle = RegisterServiceCtrlHandlerEx(TEXT("ModbusGateway"), serviceControlHandler, nullptr);
+    if (!g_StatusHandle)
+        return;
+
+    g_ServiceStatus.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
+    g_ServiceStatus.dwCurrentState = SERVICE_START_PENDING;
+    g_ServiceStatus.dwControlsAccepted = SERVICE_ACCEPT_STOP;
+    g_ServiceStatus.dwWin32ExitCode = NO_ERROR;
+    SetServiceStatus(g_StatusHandle, &g_ServiceStatus);
+
+    std::thread(serviceWorker).detach();
+
+    g_ServiceStatus.dwCurrentState = SERVICE_RUNNING;
+    SetServiceStatus(g_StatusHandle, &g_ServiceStatus);
+
+    // Keep the thread alive
+    while (g_Running) {
+        Sleep(1000);
+    }
+}
+#endif
+
 
 ///
 /// \brief main
@@ -154,6 +213,24 @@ static void showErrorMessage(const QString &message, bool useGui = false)
 ///
 int main(int argc, char *argv[])
 {
+#ifdef Q_OS_WIN
+    // Check if running as a service
+    for (int i = 1; i < argc; ++i)
+    {
+        if (strcmp(argv[i], "--service") == 0)
+        {
+            SERVICE_TABLE_ENTRY serviceTable[] = {
+                { (LPSTR)"ModbusGateway", (LPSERVICE_MAIN_FUNCTION)serviceMain },
+                { nullptr, nullptr }
+            };
+
+            if (!StartServiceCtrlDispatcher(serviceTable)) {
+                // Optional: log error
+            }
+            return 0;
+        }
+    }
+#endif
     QApplication a(argc, argv);
     a.setApplicationName(APP_NAME);
     a.setApplicationVersion(APP_VERSION);
